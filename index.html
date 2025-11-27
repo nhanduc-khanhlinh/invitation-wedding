@@ -1161,7 +1161,7 @@
 
         // ===== GOOGLE SHEETS INTEGRATION =====
         // Replace this with your Google Apps Script Web App URL
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyueK3jd5RP659iWB7GmWIGCxezbrde18ej2n-bdSTtJetJi7QnBb_6cyJ98xRGeMUq6A/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFnbL3irHLcjQMgxPr-NEKqGt5Gt7MSBIUo_SIuvvgviSbUGELezCK2GRzd9hPWV4HLw/exec';
 
         // Submit wish to Google Sheets
         async function submitWish(event) {
@@ -1182,14 +1182,17 @@
             submitBtn.textContent = 'Đang gửi...';
 
             try {
-                const formData = new FormData();
-                formData.append('name', name);
-                formData.append('message', message);
-                formData.append('timestamp', new Date().toISOString());
+                // Using GET method with query parameters to avoid CORS issues
+                const params = new URLSearchParams({
+                    action: 'addWish',
+                    name: name,
+                    message: message,
+                    timestamp: new Date().toISOString()
+                });
 
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
+                    method: 'GET',
+                    redirect: 'follow'
                 });
 
                 const result = await response.json();
@@ -1198,7 +1201,7 @@
                     showMessage('Cảm ơn bạn đã gửi lời chúc! ❤️', 'success');
                     document.getElementById('wishForm').reset();
                     // Reload wishes to show the new one
-                    loadWishes();
+                    setTimeout(() => loadWishes(), 1000);
                 } else {
                     showMessage('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
                 }
